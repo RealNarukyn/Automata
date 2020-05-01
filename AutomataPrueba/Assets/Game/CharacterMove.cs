@@ -75,28 +75,44 @@ public class CharacterMove : MonoBehaviour, IEntity, FloorMessage
 
     }
 
+
+    int time_in_lava = 0;
+    bool is_in_lava = false;
     IEnumerator onFire(float seconds)
     {
+        is_in_lava = true;
+        time_in_lava++;
+        if (time_in_lava >= 3)
+        {
+            // MSSG PARA MORIR
+            Debug.Log("Me muero");
+        }
+
         yield return new WaitForSeconds(seconds);
+        is_in_lava = false;
     }
 
     public void getFloorInfo(SpatialIndex.FLOOR_STATUS state)
     {
-        
-
 
         if (checkWithFloor((int)state, (int)SpatialIndex.FLOOR_STATUS.WATER))
         {
             speed = 6.0f;
+            time_in_lava = 0;
         }
         else if(checkWithFloor((int)state, (int)SpatialIndex.FLOOR_STATUS.LAVA))
         {
             speed = 6.0f;
             Debug.Log("AHHH");
             controller.Move(Vector3.up * 50.0f * Time.deltaTime);
+
+            if (!is_in_lava)
+                StartCoroutine(onFire(1));
+
         }
         else
         {
+            time_in_lava = 0;
             speed = 12.0f;
         }
     }

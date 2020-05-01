@@ -107,7 +107,7 @@ public class SpatialIndex : MonoBehaviour
             }
         }
 
-       GameObject.FindGameObjectsWithTag("Casters").ToList().ForEach(item => Destroy(item));
+       //GameObject.FindGameObjectsWithTag("Casters").ToList().ForEach(item => Destroy(item));
     }
 
     // Start is called before the first frame update

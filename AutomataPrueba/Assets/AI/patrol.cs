@@ -8,6 +8,10 @@ public class patrol : AI_Agent
 {
     [SerializeField]
     Transform target;
+    [SerializeField]
+    MeshRenderer mesh;
+    [SerializeField]
+    Material[] materials;
     Vector3[] waypoints;
     public int maxWaypoints = 10;
     public float angularVelocity = 0.5f;
@@ -58,15 +62,12 @@ public class patrol : AI_Agent
 
         Gizmos.DrawLine(transform.position + rightSide,
         transform.position + transform.forward * coneDistance);
-
-        Gizmos.color = gizmoColor;
-        Gizmos.DrawSphere(transform.position + Vector3.up * 2, 0.5f);
     }
 
     void idle()
     {
 
-        if (Input.GetKeyDown(KeyCode.A))
+        if (Input.GetKeyDown(KeyCode.G))
         {
             setState(getState("goto"));
         }
@@ -75,6 +76,8 @@ public class patrol : AI_Agent
 
     void goTo(Vector3 pos)
     {
+        
+
         float maxYaw = Vector3.SignedAngle(transform.forward,
         pos - transform.position,
 
@@ -91,7 +94,7 @@ public class patrol : AI_Agent
 
     void goToWaypoint()
     {
-
+        mesh.material = materials[0];
 
         goTo(waypoints[actualWaypoint]);
 
@@ -103,16 +106,15 @@ public class patrol : AI_Agent
         {
             coneDistance *= 2;
             halfAngle *= 2;
+            
             setState(getState("player"));
         }
-
     }
 
     void calculateNextWaypoint()
     {
         actualWaypoint = (++actualWaypoint) % waypoints.Length;
         setState(getState("goto"));
-
     }
 
     bool checkInCone(Vector3 pos)
@@ -124,20 +126,27 @@ public class patrol : AI_Agent
         return false;
     }
 
+
+    float cur_time = 0;
+    [SerializeField]
+    float time_to_die;
     void goToPlayer()
     {
+        mesh.material = materials[1]    ;
         goTo(target.position);
 
         if (!checkInCone(target.position))
         {
+            cur_time = 0;
             coneDistance /= 2;
             halfAngle /= 2;
             setState(getState("goto"));
         }
-        else if (Vector3.Distance(transform.position, target.position) <= 4f)
-        {
-            gizmoColor = Color.red;
-            setState(getState("idlewar"));
+
+        cur_time += Time.deltaTime;
+        if (cur_time >= time_to_die)
+        { 
+            // SEND MSSG SYSTEM TO DIE
         }
     }
 
@@ -145,66 +154,8 @@ public class patrol : AI_Agent
     float angleToGo;
     float totalAngle;
     float countAngle = 0;
-
-    void idleWar()
-    {
-        setState(getState("chooseOrbit"));
-    }
     float angleCount = 0;
-    void chooseOrbit()
-    {
-        angleToGo = Random.Range(0, 361);
-        angleCount = 0;
-        totalAngle = transform.rotation.eulerAngles.y + angleToGo;
-        /*
-         * Decido la rotación
-         * 
-         */
-        setState(getState("OrbitRight"));
 
-    }
-
-    void OrbitRight()
-    {
-        float dist = Vector3.Distance(target.position, transform.position);
-        transform.position += dist
-            * transform.forward;
-
-        float mag = Mathf.Min(angleToGo, angularVelocity); 
-        angleCount += Mathf.Min(angleToGo, angularVelocity);
-
-        transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x,
-            transform.rotation.eulerAngles.y + mag,
-            transform.rotation.eulerAngles.z);
-
-        transform.position += dist
-            * -transform.forward;
-
-   
-        if (angleCount >= totalAngle)
-        {
-            setState(getState("idle")) ;
-        }
-    } 
-
-
-    void OrbitLeft()
-    {
-        transform.position += Vector3.Distance(target.position, transform.position) 
-            * transform.forward;
-        countAngle += Mathf.Min(angleToGo, angularVelocity);
-        transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x,
-            transform.rotation.eulerAngles.y - Mathf.Min(angleToGo, angularVelocity),
-            transform.rotation.eulerAngles.z);
-        transform.position += Vector3.Distance(target.position, transform.position)
-            * -transform.forward;
-
-
-        if (countAngle <= totalAngle)
-        {
-
-        }
-    }
     // Start is called before the first frame update
     void Start()
     {
@@ -216,16 +167,7 @@ public class patrol : AI_Agent
         initState("goto", goToWaypoint);
         initState("nextwp", calculateNextWaypoint);
         initState("player", goToPlayer);
-        initState("idlewar", idleWar);
-        initState("chooseOrbit", chooseOrbit);
-        initState("OrbitRight", OrbitRight);
 
-        setState(getState("idle"));
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        setState(getState("goto"));
     }
 }

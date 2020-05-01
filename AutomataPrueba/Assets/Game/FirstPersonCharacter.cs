@@ -50,9 +50,9 @@ public class FirstPersonCharacter : MonoBehaviour,IEntity
 
     public void EUpdate(float delta)
     {
-       if(Input.GetKeyDown(KeyCode.Space))
+       if(Input.GetKeyDown(KeyCode.Mouse0))
         {
-            ObjPooler.Instance.SpawnFromPool("Bullet", transform.position + transform.forward, Quaternion.identity);
+            ObjPooler.Instance.SpawnFromPool("Bullet", transform.position + transform.forward, transform.rotation);
         }
     }
 

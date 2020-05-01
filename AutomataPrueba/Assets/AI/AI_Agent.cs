@@ -36,9 +36,6 @@ public class AI_Agent : MonoBehaviour
     public virtual void updateAgent()
     {
         actualState();
-      
-
-        
     }
 
    

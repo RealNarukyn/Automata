@@ -26,9 +26,23 @@ public class CameraMixer : MonoBehaviour
         public Interpolators.interpolatorFunc interpolatorFunc;
     }
 
+
+    [SerializeField]
+    List<MixedCamera> mixedCameras;
+
+    [SerializeField]
+    public Camera outputCamera;
+    [SerializeField]
+    public Camera defaultCamera;
+
+    public Vector3 vTarget;
+    public Vector3 vForward;
+
     private void lerpCameras(GameObject target, GameObject source,float ratio)
     {
         if (target == null || source == null) { Debug.LogError("Invalid GameObject"); return; }
+
+        
 
         Transform trSource = source.transform;
         Transform trTarget = target.transform;
@@ -37,8 +51,11 @@ public class CameraMixer : MonoBehaviour
 
         if(!camSource || !camTarget) { Debug.LogError("Invalid Camera Component"); return; }
 
-        Debug.Log(ratio);
-        Vector3 newPosition = Vector3.Lerp(trTarget.position,trSource.position , ratio);
+        //Debug.Log(ratio); 
+
+        //Vector3 newPosition = Vector3.Lerp(vTarget, trSource.position , ratio);
+        //Vector3 newForward = Vector3.Lerp(vForward, trSource.forward, ratio);
+        Vector3 newPosition = Vector3.Lerp(trTarget.position, trSource.position , ratio);
         Vector3 newForward = Vector3.Lerp(trTarget.forward, trSource.forward, ratio);
 
         trTarget.position = newPosition;
@@ -46,13 +63,6 @@ public class CameraMixer : MonoBehaviour
      
     }
 
-    [SerializeField]
-    List<MixedCamera> mixedCameras;
-
-    [SerializeField]
-    Camera outputCamera;
-    [SerializeField]
-    Camera defaultCamera;
 
     /*
      No está hecho un singletone por si se quieren interpolar varias camaras en el mismo momento.
@@ -102,7 +112,6 @@ public class CameraMixer : MonoBehaviour
         }
 
         Camera.SetupCurrent(outputCamera);
-        
     }
 
     public void blendCamera(Camera camera,float blendTime, Interpolators.interpolatorFunc interpolatorFunc)
